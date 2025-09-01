@@ -18,8 +18,8 @@ export default function PDFCompressionOptions({
   defaultOptions = {} 
 }: PDFCompressionOptionsProps) {
   const [options, setOptions] = useState<PDFCompressionOptions>({
-    quality: 'ebook',
-    removeMetadata: false,
+    quality: 'screen', // Changed to screen for maximum compression (50%)
+    removeMetadata: true, // Enable by default for better compression
     optimizeImages: true,
     ...defaultOptions
   })
@@ -40,19 +40,19 @@ export default function PDFCompressionOptions({
     ebook: {
       name: 'Ebook',
       description: 'Medium quality, balanced size (150 DPI)',
-      compression: '25-40%',
+      compression: '25-45%',
       useCase: 'Digital reading, tablets'
     },
     printer: {
       name: 'Printer',
       description: 'High quality, moderate size (300 DPI)',
-      compression: '15-30%',
+      compression: '15-35%',
       useCase: 'Printing, documents'
     },
     prepress: {
       name: 'Prepress',
       description: 'Highest quality, minimal compression (300 DPI)',
-      compression: '5-15%',
+      compression: '5-20%',
       useCase: 'Professional printing'
     }
   }

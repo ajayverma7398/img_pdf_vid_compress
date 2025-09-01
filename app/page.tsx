@@ -5,6 +5,7 @@ import { FileText, Image, Video, Heart, Cloud, Download, Merge, Scissors, Trash2
 import Link from 'next/link'
 import FileList from '@/components/FileList'
 import CompressionProgress from '@/components/CompressionProgress'
+import PDFCompressionOptions, { PDFCompressionOptions as PDFOptions } from '@/components/PDFCompressionOptions'
 import { compressFile, CompressionResult } from '@/utils/compression'
 
 export default function Home() {
@@ -14,6 +15,11 @@ export default function Home() {
   const [compressionResults, setCompressionResults] = useState<CompressionResult[]>([])
   const [testResult, setTestResult] = useState<string>('')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [pdfCompressionOptions, setPdfCompressionOptions] = useState<PDFOptions>({
+    quality: 'screen', // Default to screen for maximum compression (50%)
+    removeMetadata: true,
+    optimizeImages: true
+  })
   
 
   const handleFileSelect = useCallback((files: File[]) => {
@@ -43,7 +49,17 @@ export default function Home() {
     
     for (let i = 0; i < selectedFiles.length; i++) {
       try {
-        const result = await compressFile(selectedFiles[i])
+        const file = selectedFiles[i]
+        let result: CompressionResult
+        
+        // Use PDF compression options for PDF files
+        if (file.type === 'application/pdf') {
+          const { compressPDFEnhanced } = await import('@/utils/enhanced-pdf-compression')
+          result = await compressPDFEnhanced(file, pdfCompressionOptions)
+        } else {
+          result = await compressFile(file)
+        }
+        
         results.push(result)
         
         // Update progress
@@ -61,7 +77,7 @@ export default function Home() {
     setCompressionResults(results)
     setIsCompressing(false)
     setCompressionProgress(100)
-  }, [selectedFiles])
+  }, [selectedFiles, pdfCompressionOptions])
 
   const downloadCompressedFile = useCallback((result: CompressionResult) => {
     const url = URL.createObjectURL(result.compressedBlob)
@@ -187,7 +203,20 @@ export default function Home() {
           </p>
         </div>
 
-        {/* File Upload Section */}
+        {/* Test PDF Compression Button */}
+        <div className="text-center mb-6">
+          <button
+            onClick={testPDFCompression}
+            className="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
+          >
+            Test PDF Compression (50% Target)
+          </button>
+          {testResult && (
+            <div className="mt-2 text-sm text-gray-600">
+              {testResult}
+            </div>
+          )}
+        </div>
         <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* PDF Upload */}
@@ -268,6 +297,14 @@ export default function Home() {
           onCompressFiles={handleCompression}
           isCompressing={isCompressing}
         />
+
+        {/* PDF Compression Options - Show only when PDF files are selected */}
+        {selectedFiles.some(file => file.type === 'application/pdf') && (
+          <PDFCompressionOptions
+            onOptionsChange={setPdfCompressionOptions}
+            defaultOptions={pdfCompressionOptions}
+          />
+        )}
 
         {/* Compression Progress */}
         {isCompressing && (

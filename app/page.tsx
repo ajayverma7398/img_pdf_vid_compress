@@ -131,7 +131,7 @@ export default function Home() {
                 PDF Tools
               </Link>
               <Link href="/demo" className="text-gray-600 hover:text-gray-900 px-2 xl:px-3 py-2 text-xs xl:text-sm font-medium whitespace-nowrap">
-                DEMO
+                Help
               </Link>
             </nav>
             

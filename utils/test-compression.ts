@@ -54,7 +54,7 @@ export async function testPDFCompression() {
   
   // Save the PDF
   const pdfBytes = await pdfDoc.save()
-  const originalBlob = new Blob([pdfBytes], { type: 'application/pdf' })
+  const originalBlob = new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' })
   
   // Create a File object
   const file = new File([originalBlob], 'test.pdf', { type: 'application/pdf' })
